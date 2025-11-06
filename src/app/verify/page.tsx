@@ -18,7 +18,7 @@ const Verify: React.FC = () => {
 
     const handleSubmit = () => {
         if (hash === "44090f6ae6c2e9d57d29c677165a9482cb6ed21e25065c263a4ae677979e26db") {
-            setResult("Employment Contract<br />Signed by John on 25th October 2024<br />Signature verified by Agreemint");
+            setResult("Employment Contract<br />Signed by Amit on 25th October 2024<br />Signature verified by Agreemint");
         }
     };
 
