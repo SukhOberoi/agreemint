@@ -1,29 +1,26 @@
 "use client";
 import React, { useState } from "react";
 import UploadCard from "@/components/UploadCard";
-import MarkdownEdit from "@/components/MarkdownEdit";
-import { SessionProvider } from "next-auth/react"
+import ContractEditor from "@/components/ContractEditor";
+import { SessionProvider } from "next-auth/react";
+import type { StructuredContract } from "@/lib/contractSchema";
 
+const Create: React.FC = () => {
+	const [contract, setContract] = useState<StructuredContract | null>(null);
+	const [documentId, setDocumentId] = useState<string | null>(null);
 
-const create: React.FC = () => {
-	const [document, setDocument] = useState(null);
-	
-	const [documentId, setDocumentId] = useState(null)
-	
 	return (
-		<>
-			<SessionProvider>
-				{!document && (
-					<div className="flex items-center justify-center w-full h-[calc(100vh-72px)] p-4 font-inter">
-						<UploadCard setDocument={setDocument} setDocumentId={setDocumentId} />
-					</div>
-				)}
-				{document && (
-					<div className="w-screen p-4 font-inter h-[90vh]"><MarkdownEdit document={document} setDocument={setDocument} documentId={documentId} /></div>
-				)}
-			</SessionProvider>
-		</>
+		<SessionProvider>
+			{!contract && (
+				<div className="flex items-center justify-center w-full h-[calc(100vh-72px)] p-4 font-inter">
+					<UploadCard setContract={setContract} setDocumentId={setDocumentId} />
+				</div>
+			)}
+			{contract && (
+				<ContractEditor contract={contract} documentId={documentId} />
+			)}
+		</SessionProvider>
 	);
 };
 
-export default create;
+export default Create;
