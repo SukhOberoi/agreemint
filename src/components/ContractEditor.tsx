@@ -9,7 +9,6 @@ import type {
   DocumentInvite,
   DocumentSignature,
 } from "@/lib/documentTypes";
-import { hasValidSignature } from "@/lib/signatureUtils";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +27,7 @@ interface ContractEditorProps {
   invites?: DocumentInvite[];
   signatures: DocumentSignature[];
   onSignatureAdded: (signature: DocumentSignature) => void;
+  publicAccess: "involved" | "anyone";
 }
 
 /**
@@ -43,6 +43,7 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
   invites: initialInvites,
   signatures,
   onSignatureAdded,
+  publicAccess: initialPublicAccess,
 }) => {
   const { data: session } = useSession();
   const [contract, setContract] = useState<StructuredContract>(initialContract);
@@ -59,6 +60,8 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
   const [signerName, setSignerName] = useState(session?.user?.name ?? "");
   const [signing, setSigning] = useState(false);
   const [signError, setSignError] = useState<string | null>(null);
+  const [publicAccess, setPublicAccess] = useState(initialPublicAccess);
+  const [updatingAccess, setUpdatingAccess] = useState(false);
 
   const handlePlaceholderClick = (placeholder: string) => {
     const label = placeholder.replace(/^\[|\]$/g, "").replace(/_/g, " ").toLowerCase();
@@ -170,9 +173,30 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
     }
   };
 
-  const isLocked = hasValidSignature(signatures);
+  const handleUpdateAccess = async (newAccess: "involved" | "anyone") => {
+    setUpdatingAccess(true);
+    try {
+      const res = await fetch(`/api/documents/${documentId}/access`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publicAccess: newAccess }),
+      });
+      if (res.ok) {
+        setPublicAccess(newAccess);
+      }
+    } catch (err) {
+      console.error("Error updating access:", err);
+    } finally {
+      setUpdatingAccess(false);
+    }
+  };
 
-  if (isLocked) {
+  const copyLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+  };
+
+  if (signatures.length > 0) {
     return (
       <ReadOnlyDocumentView
         contract={contract}
@@ -180,14 +204,15 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
         signatures={signatures}
         onSignatureAdded={onSignatureAdded}
         isOwner
+        publicAccess={publicAccess}
       />
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-72px)] flex-col font-inter print-root">
+    <div className="flex h-[calc(100vh-72px)] flex-col font-inter">
       {/* ── Toolbar ─────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 print-toolbar">
+      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200">
         <div className="flex items-center gap-3">
           <h2 className="max-w-xs text-sm font-semibold text-gray-700 truncate">
             {contract.title}
@@ -285,6 +310,41 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
               </div>
             </DialogContent>
           </Dialog>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                Share
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Share Document</DialogTitle>
+                <DialogDescription>
+                  Copy the link below to share this agreement.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Input readOnly value={typeof window !== "undefined" ? window.location.href : ""} />
+                  <Button onClick={copyLink} size="sm">Copy</Button>
+                </div>
+                <div className="space-y-2">
+                  <Label>Access Control</Label>
+                  <select
+                    className="w-full p-2 border border-gray-200 rounded-md text-sm"
+                    value={publicAccess}
+                    onChange={(e) => handleUpdateAccess(e.target.value as any)}
+                    disabled={updatingAccess}
+                  >
+                    <option value="involved">Involved parties only</option>
+                    <option value="anyone">Anyone with link</option>
+                  </select>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Dialog>
             <DialogTrigger asChild>
               <Button
@@ -295,6 +355,7 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
                 {hasSigned ? "Signed" : "Sign"}
               </Button>
             </DialogTrigger>
+
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Sign Agreement</DialogTitle>
@@ -351,17 +412,17 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
       </div>
 
       {/* ── Main panels ────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden print-body">
+      <div className="flex flex-1 overflow-hidden">
         {/* Left: Contract viewer */}
         <div
-          className={`overflow-y-auto bg-white p-6 print-content ${showChat ? "w-2/3 border-r border-gray-200" : "w-full"}`}
+          className={`overflow-y-auto bg-white p-6 ${showChat ? "w-2/3 border-r border-gray-200" : "w-full"}`}
         >
           <ContractViewer contract={contract} onPlaceholderClick={handlePlaceholderClick} />
         </div>
 
         {/* Right: Chat panel */}
         {showChat && (
-          <div className="w-1/3 bg-white print-hidden">
+          <div className="w-1/3 bg-white">
             <ChatPanel
               contract={contract}
               documentId={documentId}
