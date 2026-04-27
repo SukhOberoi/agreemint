@@ -169,7 +169,11 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
     }
   };
 
-  if (signatures.length > 0) {
+  const isLocked = signatures.some(
+    (signature) => signature?.hash && signature?.signedAt
+  );
+
+  if (isLocked) {
     return (
       <ReadOnlyDocumentView
         contract={contract}

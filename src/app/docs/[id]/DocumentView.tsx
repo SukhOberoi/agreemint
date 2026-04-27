@@ -51,7 +51,9 @@ export default function DocumentView({
     );
   }
 
-  const isLocked = signatureState.length > 0;
+  const isLocked = signatureState.some(
+    (signature) => signature?.hash && signature?.signedAt
+  );
   const handleSignatureAdded = (signature: DocumentSignature) => {
     setSignatureState((prev) => {
       if (prev.some((entry) => entry.hash === signature.hash)) {
