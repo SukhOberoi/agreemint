@@ -63,7 +63,9 @@ export async function POST(req: Request) {
     }
 
     const content = typeof data.content === "string" ? data.content : "";
-    const hash = createHash("sha256").update(content).digest("hex");
+    const hash = createHash("sha256")
+      .update(`${documentId}:${content}`)
+      .digest("hex");
 
     const signature: DocumentSignature = {
       hash,

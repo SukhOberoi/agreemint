@@ -37,7 +37,7 @@ interface ContractEditorProps {
 const ContractEditor: React.FC<ContractEditorProps> = ({
   contract: initialContract,
   documentId,
-  invites,
+  invites: initialInvites,
   signatures: initialSignatures,
 }) => {
   const { data: session } = useSession();
@@ -47,7 +47,7 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
   const [showChat, setShowChat] = useState(true);
   const [chatPrefill, setChatPrefill] = useState<string | null>(null);
   const [invitedParties, setInvitedParties] = useState<DocumentInvite[]>(
-    invites ?? []
+    initialInvites ?? []
   );
   const [signatures, setSignatures] = useState<DocumentSignature[]>(
     initialSignatures ?? []

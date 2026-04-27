@@ -38,7 +38,7 @@ export async function GET(req: Request) {
           title: data.title ?? "Untitled",
           signedAt: signature.signedAt,
           signerName: signature.signerName ?? signature.signerEmail ?? "Unknown",
-          signerEmail: signature.signerEmail ?? "",
+          signerEmail: signature.signerEmail ?? null,
           hash: signature.hash,
         }));
     });
