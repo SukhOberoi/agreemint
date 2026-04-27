@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     if (hasValidSignature(data?.signatures)) {
       return NextResponse.json(
         { error: "Document is locked after signing" },
-        { status: 409 }
+        { status: 423 }
       );
     }
 

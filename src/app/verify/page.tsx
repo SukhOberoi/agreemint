@@ -23,6 +23,9 @@ const Verify: React.FC = () => {
     const [hasChecked, setHasChecked] = useState(false);
     const searchParams = useSearchParams();
     const prefilledHashRef = useRef<string | null>(null);
+    const verifyHashRef = useRef<(value: string) => Promise<void>>(
+        async () => undefined
+    );
 
     const verifyHash = useCallback(async (value: string) => {
         if (!value.trim()) return;
@@ -45,12 +48,16 @@ const Verify: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        verifyHashRef.current = verifyHash;
+    }, [verifyHash]);
+
+    useEffect(() => {
         const preset = searchParams.get("hash");
         if (!preset || preset === prefilledHashRef.current) return;
         prefilledHashRef.current = preset;
         setHash(preset);
-        verifyHash(preset);
-    }, [searchParams, verifyHash]);
+        verifyHashRef.current(preset);
+    }, [searchParams]);
 
     const handleSubmit = async () => {
         await verifyHash(hash);
