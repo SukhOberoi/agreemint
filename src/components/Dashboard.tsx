@@ -4,6 +4,7 @@ import CreateCard from "@/components/DashboardCards/CreateCard";
 import DocumentsCard from "@/components/DocumentsCard/DocumentsCard";
 import OnboardingCard from "@/components/OnboardingCard";
 import VerifyCard from "@/components/DashboardCards/VerifyCard";
+import TemplatesCard from "@/components/DashboardCards/TemplatesCard";
 
 const Dashboard: React.FC = () => {
 	return (
@@ -11,6 +12,7 @@ const Dashboard: React.FC = () => {
 			<OverviewCard />
 			<CreateCard />
 			<DocumentsCard mini />
+			<TemplatesCard />
 			<OnboardingCard />
 			<VerifyCard />
 		</div>

@@ -1,10 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'; 
 import { db } from '@/lib/firebaseAdmin'; // Import the db instance
 
-export async function POST(req) {
+export async function POST(req: Request) {
 
-    const { userId, content } = await req.json();
-    console.log(userId, content);
+    const { userId, content, title: providedTitle } = await req.json();
 
     // Validate input
     if (!userId || !content) {
@@ -13,25 +12,24 @@ export async function POST(req) {
 
     const documentId = uuidv4(); 
     
-    // Extract the first line from the content as the title
-    const title = content.split('\n')[0]; // This will grab the first line of the document
+    // Use provided title or extract from content
+    const title = providedTitle || content.split('\n')[0];
 
     // Prepare the document to upload to Firestore
     const documentData = {
         id: documentId,
-        userId: userId, // Include the user's ID
-        title: title, // Save the title
-        content: content, // The full document content
-        otherParties: [], // Empty array for other parties
-        createdAt: new Date().toISOString(), // Timestamp
+        userId: userId,
+        title: title,
+        content: content, // Now stores JSON string of StructuredContract
+        otherParties: [],
+        createdAt: new Date().toISOString(),
     };
 
     try {
-        // Upload to Firebase Firestore
-        await db.collection('documents').doc(documentId).set(documentData); // Use db instead of firestore
-        return Response.json({ id: documentId }); // Return the document ID
+        await db.collection('documents').doc(documentId).set(documentData);
+        return Response.json({ id: documentId });
     } catch (error) {
         console.error("Error uploading document:", error);
-        return Response.json({ error: error }, { status: 500 }); // Return the error
+        return Response.json({ error: error }, { status: 500 });
     }
 }
