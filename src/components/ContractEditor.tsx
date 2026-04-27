@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import ContractViewer from "./ContractViewer";
 import ChatPanel from "./ChatPanel";
 import { Button } from "@/components/ui/button";
+import ReadOnlyDocumentView from "@/components/ReadOnlyDocumentView";
 import type { StructuredContract } from "@/lib/contractSchema";
 import type {
   DocumentInvite,
@@ -24,7 +25,8 @@ interface ContractEditorProps {
   contract: StructuredContract;
   documentId: string | null;
   invites?: DocumentInvite[];
-  signatures?: DocumentSignature[];
+  signatures: DocumentSignature[];
+  onSignatureAdded: (signature: DocumentSignature) => void;
 }
 
 /**
@@ -38,7 +40,8 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
   contract: initialContract,
   documentId,
   invites: initialInvites,
-  signatures: initialSignatures,
+  signatures,
+  onSignatureAdded,
 }) => {
   const { data: session } = useSession();
   const [contract, setContract] = useState<StructuredContract>(initialContract);
@@ -48,9 +51,6 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
   const [chatPrefill, setChatPrefill] = useState<string | null>(null);
   const [invitedParties, setInvitedParties] = useState<DocumentInvite[]>(
     initialInvites ?? []
-  );
-  const [signatures, setSignatures] = useState<DocumentSignature[]>(
-    initialSignatures ?? []
   );
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
@@ -155,13 +155,31 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
       if (!res.ok) {
         throw new Error(data.error ?? "Failed to sign");
       }
-      setSignatures((prev) => [...prev, data.signature]);
+      onSignatureAdded(data.signature);
     } catch (err: any) {
       setSignError(err.message);
     } finally {
       setSigning(false);
     }
   };
+
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  };
+
+  if (signatures.length > 0) {
+    return (
+      <ReadOnlyDocumentView
+        contract={contract}
+        documentId={documentId ?? ""}
+        signatures={signatures}
+        onSignatureAdded={onSignatureAdded}
+        isOwner
+      />
+    );
+  }
 
   return (
     <div className="flex h-[calc(100vh-72px)] flex-col font-inter">
@@ -308,6 +326,9 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
               </form>
             </DialogContent>
           </Dialog>
+          <Button variant="outline" size="sm" onClick={handlePrint}>
+            Print
+          </Button>
           <Button
             variant="outline"
             size="sm"

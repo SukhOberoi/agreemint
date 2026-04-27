@@ -29,6 +29,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const signatures = Array.isArray(data?.signatures) ? data.signatures : [];
+    if (signatures.length > 0) {
+      return NextResponse.json(
+        { error: "Document is locked after signing" },
+        { status: 409 }
+      );
+    }
+
     await docRef.update({
       content,
       updatedAt: new Date().toISOString(),
