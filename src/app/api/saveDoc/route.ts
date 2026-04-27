@@ -30,7 +30,10 @@ export async function POST(req: Request) {
     }
 
     const signatures = Array.isArray(data?.signatures) ? data.signatures : [];
-    if (signatures.length > 0) {
+    const hasValidSignature = signatures.some(
+      (signature) => signature?.hash && signature?.signedAt
+    );
+    if (hasValidSignature) {
       return NextResponse.json(
         { error: "Document is locked after signing" },
         { status: 409 }

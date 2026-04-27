@@ -45,11 +45,10 @@ const Verify: React.FC = () => {
 
     useEffect(() => {
         const preset = searchParams.get("hash");
-        if (preset && preset !== hash) {
-            setHash(preset);
-            verifyHash(preset);
-        }
-    }, [hash, searchParams, verifyHash]);
+        if (!preset) return;
+        setHash(preset);
+        verifyHash(preset);
+    }, [searchParams, verifyHash]);
 
     const handleSubmit = async () => {
         await verifyHash(hash);
