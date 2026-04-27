@@ -2,11 +2,16 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
-type Doc = {
+type DocResponse = {
   id: string;
   title: string;
   createdAt: string;
   updatedAt?: string;
+  inviteStatus?: string;
+};
+
+type Doc = DocResponse & {
+  access: "owner" | "invited";
 };
 
 export default function DocumentList({ mini }: { mini: boolean }) {
@@ -16,11 +21,26 @@ export default function DocumentList({ mini }: { mini: boolean }) {
   useEffect(() => {
     const fetchDocs = async () => {
       try {
-        const res = await fetch("/api/getUserDocuments", { method: "GET" });
-        const data = await res.json();
-        if (data.success) {
-          setDocs(data.documents);
-        }
+        const [ownedRes, invitedRes] = await Promise.all([
+          fetch("/api/getUserDocuments", { method: "GET" }),
+          fetch("/api/getInvitedDocuments", { method: "GET" }),
+        ]);
+        const ownedData = await ownedRes.json();
+        const invitedData = await invitedRes.json();
+        const ownedDocs = ownedData.success
+          ? ownedData.documents.map((doc: DocResponse) => ({
+              ...doc,
+              access: "owner" as const,
+            }))
+          : [];
+        const invitedDocs = invitedData.success
+          ? invitedData.documents.map((doc: DocResponse) => ({
+              ...doc,
+              access: "invited" as const,
+              inviteStatus: doc.inviteStatus,
+            }))
+          : [];
+        setDocs([...ownedDocs, ...invitedDocs]);
       } catch (err) {
         console.error("Error fetching documents:", err);
       } finally {
@@ -64,6 +84,11 @@ export default function DocumentList({ mini }: { mini: boolean }) {
               Created: {new Date(doc.createdAt).toLocaleString()}
               {doc.updatedAt && ` · Updated: ${new Date(doc.updatedAt).toLocaleString()}`}
             </p>
+            {doc.access === "invited" && (
+              <p className="mt-1 text-xs text-bottlegreen">
+                Shared with you · {doc.inviteStatus ?? "pending"}
+              </p>
+            )}
           </div>
         </Link>
       ))}

@@ -22,6 +22,10 @@ export async function POST(req: Request) {
         title: title,
         content: content, // Now stores JSON string of StructuredContract
         otherParties: [],
+        invitedParties: [],
+        invitedEmails: [],
+        signatures: [],
+        signatureHashes: [],
         createdAt: new Date().toISOString(),
     };
 
