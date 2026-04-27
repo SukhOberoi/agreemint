@@ -182,9 +182,9 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
   }
 
   return (
-    <div className="flex h-[calc(100vh-72px)] flex-col font-inter">
+    <div className="flex h-[calc(100vh-72px)] flex-col font-inter print-root">
       {/* ── Toolbar ─────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 print-toolbar">
         <div className="flex items-center gap-3">
           <h2 className="max-w-xs text-sm font-semibold text-gray-700 truncate">
             {contract.title}
@@ -348,17 +348,17 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
       </div>
 
       {/* ── Main panels ────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden print-body">
         {/* Left: Contract viewer */}
         <div
-          className={`overflow-y-auto bg-white p-6 ${showChat ? "w-2/3 border-r border-gray-200" : "w-full"}`}
+          className={`overflow-y-auto bg-white p-6 print-content ${showChat ? "w-2/3 border-r border-gray-200" : "w-full"}`}
         >
           <ContractViewer contract={contract} onPlaceholderClick={handlePlaceholderClick} />
         </div>
 
         {/* Right: Chat panel */}
         {showChat && (
-          <div className="w-1/3 bg-white">
+          <div className="w-1/3 bg-white print-hidden">
             <ChatPanel
               contract={contract}
               documentId={documentId}

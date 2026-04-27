@@ -89,3 +89,34 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+
+  .print-root {
+    height: auto !important;
+  }
+
+  .print-body {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .print-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+  }
+
+  .print-signatures {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

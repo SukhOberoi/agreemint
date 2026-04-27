@@ -16,8 +16,8 @@ import { Button } from "@/components/ui/button";
 const Header: React.FC = async () => {
 	const session = await auth();
 	const user = session?.user;
-	return (
-		<div className="flex items-center justify-between px-6 py-4">
+		return (
+			<div className="flex items-center justify-between px-6 py-4 print-hidden">
 			<Link href="/">
 				<div className="flex items-center text-3xl font-bold" id="left">
 					<span className="!text-4xl material-symbols-outlined">

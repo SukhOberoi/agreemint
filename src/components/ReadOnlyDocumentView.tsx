@@ -131,8 +131,8 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
   };
 
   return (
-    <div className="flex h-[calc(100vh-72px)] flex-col font-inter">
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2">
+    <div className="flex h-[calc(100vh-72px)] flex-col font-inter print-root">
+      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 print-toolbar">
         <div>
           <h2 className="text-sm font-semibold text-gray-700">
             {isOwner ? "Agreement" : "Shared Agreement"}
@@ -206,17 +206,19 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
           </Dialog>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-6">
-        <ContractViewer contract={contract} />
-        <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-600">
-            Signatures
-          </h3>
-          <div className="mt-3">
-            <SignatureList signatures={signatures} />
+      <div className="flex-1 overflow-y-auto p-6 print-body">
+        <div className="mx-auto w-full max-w-3xl print-content">
+          <ContractViewer contract={contract} />
+          <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-4 print-signatures">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-600">
+              Signatures
+            </h3>
+            <div className="mt-3">
+              <SignatureList signatures={signatures} />
+            </div>
           </div>
+          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         </div>
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       </div>
     </div>
   );
