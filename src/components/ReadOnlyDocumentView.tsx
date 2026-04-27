@@ -26,6 +26,7 @@ interface ReadOnlyDocumentViewProps {
   signatures: DocumentSignature[];
   onSignatureAdded: (signature: DocumentSignature) => void;
   isOwner: boolean;
+  publicAccess: "involved" | "anyone";
 }
 
 function SignatureList({ signatures }: { signatures: DocumentSignature[] }) {
@@ -56,6 +57,7 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
   signatures,
   onSignatureAdded,
   isOwner,
+  publicAccess: initialPublicAccess,
 }) => {
   const { data: session } = useSession();
   const [inviteStatus, setInviteStatus] = useState(
@@ -65,6 +67,8 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
   const [signing, setSigning] = useState(false);
   const [accepting, setAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [publicAccess, setPublicAccess] = useState(initialPublicAccess);
+  const [updatingAccess, setUpdatingAccess] = useState(false);
 
   useEffect(() => {
     if (session?.user?.name) {
@@ -132,9 +136,32 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
     }
   };
 
+  const handleUpdateAccess = async (newAccess: "involved" | "anyone") => {
+    setUpdatingAccess(true);
+    try {
+      const res = await fetch(`/api/documents/${documentId}/access`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publicAccess: newAccess }),
+      });
+      if (res.ok) {
+        setPublicAccess(newAccess);
+      }
+    } catch (err) {
+      console.error("Error updating access:", err);
+    } finally {
+      setUpdatingAccess(false);
+    }
+  };
+
+  const copyLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+  };
+
   return (
-    <div className="flex h-[calc(100vh-72px)] flex-col font-inter print-root">
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 print-toolbar">
+    <div className="flex h-[calc(100vh-72px)] flex-col font-inter print:h-auto print:block">
+      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 print:hidden">
         <div>
           <h2 className="text-sm font-semibold text-gray-700">
             {isOwner ? "Agreement" : "Shared Agreement"}
@@ -162,6 +189,43 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
           <Button variant="outline" size="sm" onClick={handlePrint}>
             Print
           </Button>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                Share
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Share Document</DialogTitle>
+                <DialogDescription>
+                  Copy the link below to share this agreement.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Input readOnly value={typeof window !== "undefined" ? window.location.href : ""} />
+                  <Button onClick={copyLink} size="sm">Copy</Button>
+                </div>
+                {isOwner && (
+                  <div className="space-y-2">
+                    <Label>Access Control</Label>
+                    <select
+                      className="w-full p-2 border border-gray-200 rounded-md text-sm"
+                      value={publicAccess}
+                      onChange={(e) => handleUpdateAccess(e.target.value as any)}
+                      disabled={updatingAccess}
+                    >
+                      <option value="involved">Involved parties only</option>
+                      <option value="anyone">Anyone with link</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Dialog>
             <DialogTrigger asChild>
               <Button
@@ -208,10 +272,10 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
           </Dialog>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-6 print-body">
-        <div className="mx-auto w-full max-w-3xl print-content">
+      <div className="flex-1 overflow-y-auto p-6 print:overflow-visible print:p-0">
+        <div className="mx-auto max-w-3xl">
           <ContractViewer contract={contract} />
-          <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-4 print-signatures">
+          <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-4 print:border-none print:bg-transparent print:p-0">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-600">
               Signatures
             </h3>
@@ -219,7 +283,7 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
               <SignatureList signatures={signatures} />
             </div>
           </div>
-          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-4 text-sm text-red-600 print:hidden">{error}</p>}
         </div>
       </div>
     </div>
