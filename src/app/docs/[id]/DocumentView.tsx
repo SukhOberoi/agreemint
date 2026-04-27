@@ -8,6 +8,7 @@ import type {
   DocumentInvite,
   DocumentSignature,
 } from "@/lib/documentTypes";
+import { hasValidSignature } from "@/lib/signatureUtils";
 
 interface DocumentViewProps {
   documentId: string;
@@ -51,9 +52,7 @@ export default function DocumentView({
     );
   }
 
-  const isLocked = signatureState.some(
-    (signature) => signature?.hash && signature?.signedAt
-  );
+  const isLocked = hasValidSignature(signatureState);
   const handleSignatureAdded = (signature: DocumentSignature) => {
     setSignatureState((prev) => {
       if (prev.some((entry) => entry.hash === signature.hash)) {

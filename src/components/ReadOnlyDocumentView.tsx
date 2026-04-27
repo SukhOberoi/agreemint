@@ -78,7 +78,9 @@ const ReadOnlyDocumentView: React.FC<ReadOnlyDocumentViewProps> = ({
       signature.signerId === session?.user?.id ||
       signature.signerEmail === signerEmail
   );
-  const canSign = isOwner ? !hasSigned : inviteStatus === "accepted" && !hasSigned;
+  const canSignAsOwner = isOwner && !hasSigned;
+  const canSignAsInvitee = !isOwner && inviteStatus === "accepted" && !hasSigned;
+  const canSign = canSignAsOwner || canSignAsInvitee;
 
   const handlePrint = () => {
     if (typeof window !== "undefined") {

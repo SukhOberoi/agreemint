@@ -1,6 +1,7 @@
 import { db } from "@/lib/firebaseAdmin";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { hasValidSignature } from "@/lib/signatureUtils";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -29,11 +30,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const signatures = Array.isArray(data?.signatures) ? data.signatures : [];
-    const hasValidSignature = signatures.some(
-      (signature) => signature?.hash && signature?.signedAt
-    );
-    if (hasValidSignature) {
+    if (hasValidSignature(data?.signatures)) {
       return NextResponse.json(
         { error: "Document is locked after signing" },
         { status: 409 }

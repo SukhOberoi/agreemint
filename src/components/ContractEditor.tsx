@@ -9,6 +9,7 @@ import type {
   DocumentInvite,
   DocumentSignature,
 } from "@/lib/documentTypes";
+import { hasValidSignature } from "@/lib/signatureUtils";
 import {
   Dialog,
   DialogContent,
@@ -169,9 +170,7 @@ const ContractEditor: React.FC<ContractEditorProps> = ({
     }
   };
 
-  const isLocked = signatures.some(
-    (signature) => signature?.hash && signature?.signedAt
-  );
+  const isLocked = hasValidSignature(signatures);
 
   if (isLocked) {
     return (

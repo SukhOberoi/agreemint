@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
 	Card,
 	CardContent,
@@ -22,6 +22,7 @@ const Verify: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [hasChecked, setHasChecked] = useState(false);
     const searchParams = useSearchParams();
+    const prefilledHashRef = useRef<string | null>(null);
 
     const verifyHash = useCallback(async (value: string) => {
         if (!value.trim()) return;
@@ -45,7 +46,8 @@ const Verify: React.FC = () => {
 
     useEffect(() => {
         const preset = searchParams.get("hash");
-        if (!preset) return;
+        if (!preset || preset === prefilledHashRef.current) return;
+        prefilledHashRef.current = preset;
         setHash(preset);
         verifyHash(preset);
     }, [searchParams, verifyHash]);
@@ -89,6 +91,7 @@ const Verify: React.FC = () => {
                                     setMatches([]);
                                     setError(null);
                                     setHasChecked(false);
+                                    prefilledHashRef.current = null;
                                 }}
                             >
                                 Clear
