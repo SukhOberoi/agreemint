@@ -33,6 +33,7 @@ export default async function DocPage({ params }: Props) {
   const signatures: DocumentSignature[] = Array.isArray(data.signatures)
     ? data.signatures
     : [];
+  const publicAccess: "involved" | "anyone" = data.publicAccess || "involved";
   const email = session.user.email?.toLowerCase();
   const invite = email
     ? invites.find((entry) => entry.email === email)
@@ -55,6 +56,7 @@ export default async function DocPage({ params }: Props) {
       invites={invites}
       signatures={signatures}
       currentInvite={invite}
+      publicAccess={publicAccess}
     />
   );
 }

@@ -85,7 +85,7 @@ const MarkdownEdit = ({ document, documentId, setDocument, isOtherParty = false 
 
   return (
     <div className="w-full h-screen font-inter">
-      <MDEditor className="w-3/4" value={content} onChange={handleChange} readOnly={isReadOnly && !isOtherParty} />
+      <MDEditor className="w-3/4" value={content} onChange={handleChange} preview={(isReadOnly && !isOtherParty) ? "preview" : "edit"} />
 
       <div>
         {!isReadOnly && (

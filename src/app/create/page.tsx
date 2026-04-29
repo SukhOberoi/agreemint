@@ -26,6 +26,7 @@ const Create: React.FC = () => {
 					onSignatureAdded={(signature) =>
 						setSignatures((prev) => [...prev, signature])
 					}
+					publicAccess="involved"
 				/>
 			)}
 		</SessionProvider>

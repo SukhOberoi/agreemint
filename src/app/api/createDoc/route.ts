@@ -26,6 +26,7 @@ export async function POST(req: Request) {
         invitedEmails: [],
         signatures: [],
         signatureHashes: [],
+        publicAccess: 'involved',
         createdAt: new Date().toISOString(),
     };
 

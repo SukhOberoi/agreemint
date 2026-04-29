@@ -17,6 +17,7 @@ interface DocumentViewProps {
   invites: DocumentInvite[];
   signatures: DocumentSignature[];
   currentInvite?: DocumentInvite;
+  publicAccess: "involved" | "anyone";
 }
 
 /**
@@ -30,6 +31,7 @@ export default function DocumentView({
   invites,
   signatures,
   currentInvite,
+  publicAccess,
 }: DocumentViewProps) {
   const [signatureState, setSignatureState] = useState<DocumentSignature[]>(
     signatures
@@ -71,6 +73,7 @@ export default function DocumentView({
           invites={invites}
           signatures={signatureState}
           onSignatureAdded={handleSignatureAdded}
+          publicAccess={publicAccess}
         />
       ) : (
         <ReadOnlyDocumentView
@@ -80,6 +83,7 @@ export default function DocumentView({
           signatures={signatureState}
           onSignatureAdded={handleSignatureAdded}
           isOwner={isOwner}
+          publicAccess={publicAccess}
         />
       )}
     </SessionProvider>
